@@ -26,7 +26,7 @@ CREATE TABLE Pedidos (
 );
 
 DELIMITER //
-CREATE TRIGGER insere_auditoria_clienteAFTER INSERT ON ClientesFOR EACH ROW
+CREATE TRIGGER insere_auditoria_cliente AFTER INSERT ON Clientes FOR EACH ROW
 BEGIN
     INSERT INTO Auditoria (mensagem) VALUES (CONCAT('Novo cliente: ', NEW.nome, ' em ', NOW()));
 END;
@@ -34,8 +34,17 @@ END;
 DELIMITER ;
 
 DELIMITER //
-CREATE TRIGGER tentativa_exclusaoBEFORE DELETE ON ClientesFOR EACH ROW BEGIN
+CREATE TRIGGER tentativa_exclusao BEFORE DELETE ON Clientes FOR EACH ROW BEGIN
     INSERT INTO Auditoria (mensagem) VALUES (CONCAT('Tentativa exclusão cliente: ', OLD.nome, ' em ', NOW()));
+END;
+//
+DELIMITER ;
+
+DELIMITER //
+CREATE TRIGGER atualiza_nome_auditoria AFTER UPDATE ON Clientes FOR EACH ROW BEGIN
+    IF NEW.nome IS NOT NULL AND NEW.nome != OLD.nome THEN
+        INSERT INTO Auditoria (mensagem) VALUES (CONCAT('Nome atualizado: ', OLD.nome, ' para ', NEW.nome, ' em ', NOW()));
+    END IF;
 END;
 //
 DELIMITER ;
