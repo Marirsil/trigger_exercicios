@@ -48,3 +48,16 @@ CREATE TRIGGER atualiza_nome_auditoria AFTER UPDATE ON Clientes FOR EACH ROW BEG
 END;
 //
 DELIMITER ;
+
+DELIMITER //
+CREATE TRIGGER impede_atualizacao_nome
+BEFORE UPDATE ON Clientes
+FOR EACH ROW
+BEGIN
+    IF NEW.nome IS NULL OR NEW.nome = '' THEN
+        SIGNAL SQLSTATE '45000'
+        SET MESSAGE_TEXT = 'Nome não pode ser vazio ou NULL';
+    END IF;
+END;
+//
+DELIMITER ;
