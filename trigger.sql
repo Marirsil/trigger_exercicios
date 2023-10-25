@@ -50,13 +50,23 @@ END;
 DELIMITER ;
 
 DELIMITER //
-CREATE TRIGGER impede_atualizacao_nome
-BEFORE UPDATE ON Clientes
-FOR EACH ROW
-BEGIN
+CREATE TRIGGER impede_atualizacao_nome BEFORE UPDATE ON Clientes FOR EACH ROW BEGIN
     IF NEW.nome IS NULL OR NEW.nome = '' THEN
         SIGNAL SQLSTATE '45000'
         SET MESSAGE_TEXT = 'Nome não pode ser vazio ou NULL';
+    END IF;
+END;
+//
+DELIMITER ;
+
+DELIMITER //
+CREATE TRIGGER atualiza_estoque_pedido AFTER INSERT ON Pedidos FOR EACH ROW BEGIN
+    UPDATE Produtos
+    SET estoque = estoque - NEW.quantidade
+    WHERE id = NEW.produto_id;
+
+    IF (SELECT estoque FROM Produtos WHERE id = NEW.produto_id) < 5 THEN
+        INSERT INTO Auditoria (mensagem) VALUES (CONCAT('Estoque baixo produto: ', NEW.produto_id, ' em ', NOW()));
     END IF;
 END;
 //
