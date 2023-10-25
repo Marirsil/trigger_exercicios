@@ -25,3 +25,12 @@ CREATE TABLE Pedidos (
     FOREIGN KEY (produto_id) REFERENCES Produtos(id)
 );
 
+DELIMITER //
+CREATE TRIGGER insere_auditoria_cliente
+AFTER INSERT ON Clientes
+FOR EACH ROW
+BEGIN
+    INSERT INTO Auditoria (mensagem) VALUES (CONCAT('Novo cliente: ', NEW.nome, ' em ', NOW()));
+END;
+//
+DELIMITER ;
