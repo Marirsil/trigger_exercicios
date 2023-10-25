@@ -26,11 +26,16 @@ CREATE TABLE Pedidos (
 );
 
 DELIMITER //
-CREATE TRIGGER insere_auditoria_cliente
-AFTER INSERT ON Clientes
-FOR EACH ROW
+CREATE TRIGGER insere_auditoria_clienteAFTER INSERT ON ClientesFOR EACH ROW
 BEGIN
     INSERT INTO Auditoria (mensagem) VALUES (CONCAT('Novo cliente: ', NEW.nome, ' em ', NOW()));
+END;
+//
+DELIMITER ;
+
+DELIMITER //
+CREATE TRIGGER tentativa_exclusaoBEFORE DELETE ON ClientesFOR EACH ROW BEGIN
+    INSERT INTO Auditoria (mensagem) VALUES (CONCAT('Tentativa exclusão cliente: ', OLD.nome, ' em ', NOW()));
 END;
 //
 DELIMITER ;
